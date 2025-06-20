@@ -33,4 +33,25 @@ public class WeatherForecastController : ControllerBase
             })
             .ToArray();
     }
+    
+    [MapToApiVersion(1)]
+    [MapToApiVersion(2)]
+    [HttpGet("average{days:int}", Name = "GetAverageTemperature")]
+    public ActionResult<V1.AverageTemperature> GetAverageTemperature(int days = 5)
+    {
+        if (days < 1) return BadRequest("Days must be at least 1.");
+
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        var endDate = today.AddDays(days - 1);
+        var avgTempC = Enumerable.Range(1, days)
+            .Select(i => Random.Shared.Next(-20, 55))
+            .Average();
+
+        return new V1.AverageTemperature
+        {
+            StartDate = today,
+            EndDate = endDate,
+            AverageTemperatureC = Math.Round(avgTempC, 1)
+        };
+    }
 }
